@@ -2,6 +2,7 @@ try:
     import pyautogui
     import numpy as nm
     import pytesseract
+    import PIL.ImageGrab
     from PIL import ImageGrab, Image
     import imageio as iio
     from time import sleep
@@ -209,7 +210,7 @@ def start_fishing():
         y1 = position[1] + 40
         x2 = position[0] + 40
         y2 = position[1] - 40
-        image = ImageGrab.grab(bbox=(x1,y2,x2,y1))
+        image = PIL.ImageGrab.grab().crop((x1,y2,x2,y1))
         image.save("Images/Fish_box" + str(a) + ".png")
     
     # Casts the rod and gets max every time
