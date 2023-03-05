@@ -17,9 +17,9 @@ Features:
 -As of V1.0 can only auto fish during the day
 
 More to come:
--Stops fishing when energy is low
--Able to fish in the dark
--More auto farming things
+Stops fishing when energy is low
+Able to fish in the dark
+More auto farming things
 
 
 
