@@ -36,6 +36,7 @@ version = 1.0
 
 # Here are all of the color hues that I need
 brown_color = [174,112,28]
+energy_bar_red_color = [205,0,0]
 
 
 
@@ -51,7 +52,7 @@ mouse = MouseController()
 
 # Gets the percent of color based on an image
 # I stole this
-def percent_color(image:str,color_hue:list,silent:bool):
+def percent_color(image:str,color_hue:list,silent:bool,diffs:int):
     # Read image
     imagePath = "./Images/"
     img = cv2.imread(imagePath+image)
@@ -62,7 +63,7 @@ def percent_color(image:str,color_hue:list,silent:bool):
 
     # You define an interval that covers the values
     # in the tuple and are below and above them by 20
-    diff = 4
+    diff = diffs
 
     # Be aware that opencv loads image in BGR format,
     # that's why the color values have been adjusted here:
@@ -155,14 +156,10 @@ class KeyBdInput(ctypes.Structure):
                 ("dwFlags", ctypes.c_ulong),
                 ("time", ctypes.c_ulong),
                 ("dwExtraInfo", PUL)]
-
-
 class HardwareInput(ctypes.Structure):
     _fields_ = [("uMsg", ctypes.c_ulong),
                 ("wParamL", ctypes.c_short),
                 ("wParamH", ctypes.c_ushort)]
-
-
 class MouseInput(ctypes.Structure):
     _fields_ = [("dx", ctypes.c_long),
                 ("dy", ctypes.c_long),
@@ -170,28 +167,19 @@ class MouseInput(ctypes.Structure):
                 ("dwFlags", ctypes.c_ulong),
                 ("time", ctypes.c_ulong),
                 ("dwExtraInfo", PUL)]
-
-
 class Input_I(ctypes.Union):
     _fields_ = [("ki", KeyBdInput),
                 ("mi", MouseInput),
                 ("hi", HardwareInput)]
-
-
 class Input(ctypes.Structure):
     _fields_ = [("type", ctypes.c_ulong),
                 ("ii", Input_I)]
-
-
-
 def PressKey(hexKeyCode):
     extra = ctypes.c_ulong(0)
     ii_ = Input_I()
     ii_.ki = KeyBdInput(0, hexKeyCode, 0x0008, 0, ctypes.pointer(extra))
     x = Input(ctypes.c_ulong(1), ii_)
     ctypes.windll.user32.SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
-
-
 def ReleaseKey(hexKeyCode):
     extra = ctypes.c_ulong(0)
     ii_ = Input_I()
@@ -224,8 +212,13 @@ def get_energy_bar():
     image.save("Images/Energy_bar.png")
 
 
+# IDK how to make classes, this is the next best thing!
 # Fishing start
 def start_fishing():
+        print("\n Switch to game screen")
+        sleep(2)
+
+
         # Gets the ! box that goes above the players head
         def get_box_position():
             print("Press U when mouse is over the players head, mainly where the ! is")
@@ -256,9 +249,22 @@ def start_fishing():
             sleep(.1)
             ReleaseKey(0x2E)
 
+        # Checks the energy levels, then takes the pixle percentage and passes it through
+        def check_energy_level():
+            get_energy_bar()
+            level = percent_color("Energy_Bar.png",energy_bar_red_color,silent=True,diffs=0)
+            return level
+        sleep(1)
+        energy = check_energy_level()
+        
+        # Stops you from fishing if your energy is too low
+        if energy > 0:
+            print("\n Not enough energy to fish")
+            exit()
+
         fish_box = get_box_position()
         # photo_fish_box(fish_box)
-        get_energy_bar()
+        
 
 
         print("Starting to fish")
@@ -275,18 +281,36 @@ def start_fishing():
 
         # Main fishing loop
         while True:
+
+            # Stops fishing if you press q
             if keyboard.is_pressed("q"):
                 print("Exiting")
                 exit()
 
             else:
+                
+                # Captures that little box above your head or where ever you put it
                 photo_fish_box(fish_box,a)
-                d = percent_color("Fish_box0.png",brown_color,silent=True)
+
+                # Gets pixle percent
+                d = percent_color("Fish_box0.png",brown_color,silent=True,diffs=4)
+
+                # Sees the pixle percent and knows if you caught a fish
                 if d > 0:
                     print("Fish detected!")
                     real_rod()
                     things_caught +=1
-            
+
+
+                    sleep(.5)
+
+                    # Stops you from fishing if your energy is too low
+                    energy = check_energy_level()
+                    if energy > 0:
+                        print("\n Not enough energy to fish")
+                        exit()
+
+
                     # Recasts
                     sleep(3)
                     print("\n %i things caught" % things_caught)
