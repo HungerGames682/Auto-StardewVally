@@ -1,3 +1,4 @@
+# Disclamer, I took most of this code from stack overflow, i will say in the comments which parts I take
 try:
     import pyautogui
     import numpy as nm
@@ -20,9 +21,27 @@ try:
 
 
 
+
 except ModuleNotFoundError:
     print("Error: No modual found or something")
     os.abort()
+
+
+
+
+# Current script version
+version = 1.0
+
+
+
+# Here are all of the color hues that I need
+brown_color = [174,112,28]
+
+
+
+
+
+
 
 
 
@@ -31,7 +50,8 @@ keya = Controller()
 mouse = MouseController()
 
 # Gets the percent of color based on an image
-def percent_color(image:str,color_hue:list):
+# I stole this
+def percent_color(image:str,color_hue:list,silent:bool):
     # Read image
     imagePath = "./Images/"
     img = cv2.imread(imagePath+image)
@@ -104,13 +124,23 @@ def percent_color(image:str,color_hue:list):
 
         # Print the color percent, use 2 figures past the decimal point
         percent = np.round(colorPercent, 2)
-        print('red pixel percentage:', percent)
+        if silent == True:
+            pass
+        else:
+            print('Color pixel percentage:', percent)
 
         # numpy's hstack is used to stack two images horizontally,
         # so you see the various images generated in one figure:
         # cv2.imshow("images", np.hstack([img, output]))
         # cv2.waitKey(0)
         return percent
+
+
+
+
+
+
+
 
 
 
@@ -176,9 +206,11 @@ def ReleaseKey(hexKeyCode):
 
 
 
-
+# Everything else below this is my origanal code
 # This just allows you to see the position of your mouse
 def start_debug():
+    print("This is just for me to quickly get the mouse posisions")
+    sleep(3)
     while True:
         print(str(pyautogui.position()) + "\n")
         sleep(.3)
@@ -194,55 +226,94 @@ def get_energy_bar():
 
 # Fishing start
 def start_fishing():
-    # Gets the ! box that goes above the players head
-    def get_box_position():
-        print("Press U when mouse is over the players head, mainly where the ! is")
-        while True:
-            if keyboard.is_pressed('u'):
-                fish_box = pyautogui.position()
-                print(fish_box[0],fish_box[1])
-                break
-        return fish_box
+        # Gets the ! box that goes above the players head
+        def get_box_position():
+            print("Press U when mouse is over the players head, mainly where the ! is")
+            while True:
+                if keyboard.is_pressed('u'):
+                    fish_box = pyautogui.position()
+                    print(fish_box[0],fish_box[1])
+                    break
+            return fish_box
 
-    # Takes the photo of the image above the players head
-    def photo_fish_box(position:list,a):
-        x1 = position[0] - 40
-        y1 = position[1] + 40
-        x2 = position[0] + 40
-        y2 = position[1] - 40
-        image = PIL.ImageGrab.grab().crop((x1,y2,x2,y1))
-        image.save("Images/Fish_box" + str(a) + ".png")
+        # Takes the photo of the image above the players head
+        def photo_fish_box(position:list,a):
+            x1 = position[0] - 40
+            y1 = position[1] + 40
+            x2 = position[0] + 40
+            y2 = position[1] - 40
+            image = PIL.ImageGrab.grab().crop((x1,y2,x2,y1))
+            image.save("Images/Fish_box" + str(a) + ".png")
+        
+        # Casts the rod and gets max every time
+        def cast_rod():
+            PressKey(0x2E)
+            sleep(1.01)
+            ReleaseKey(0x2E)
+
+        def real_rod():
+            PressKey(0x2E)
+            sleep(.1)
+            ReleaseKey(0x2E)
+
+        fish_box = get_box_position()
+        # photo_fish_box(fish_box)
+        get_energy_bar()
+
+
+        print("Starting to fish")
+        print("Press Q to stop")
+
+
+        cast_rod()
+        sleep(1)
+        pyautogui.moveTo(500,500)
+        a = 0
+
     
-    # Casts the rod and gets max every time
-    def cast_rod():
-        PressKey(0x2E)
-        sleep(1.01)
-        ReleaseKey(0x2E)
-
-    def real_rod():
-        PressKey(0x2E)
-        sleep(.1)
-        ReleaseKey(0x2E)
-
-    fish_box = get_box_position()
-    # photo_fish_box(fish_box)
-    get_energy_bar()
 
 
-    print("Starting to fish")
-    cast_rod()
-    sleep(1)
-    pyautogui.moveTo(500,500)
-    print("Starting to take photos")
-    a = 0
-    while True:
-        if keyboard.is_pressed("k"):
-            pyautogui.click()
-            photo_fish_box(fish_box,a)
-            b = ImageGrab.grab()
-            b.save("Images/Balls.png")
-            print(a)
-            a += 1
+        while True:
+            if keyboard.is_pressed("q"):
+                print("Exiting")
+                exit()
+
+            else:
+                photo_fish_box(fish_box,a)
+                d = percent_color("Fish_box0.png",brown_color,silent=False)
+                if d > 0:
+                    print("Fish detected!!")
+                    real_rod()
+                    break
+                else:
+                    pass
+
+        sleep(3)
+        print("2")
+        keyboard.press_and_release("c")
+        while True:
+            
+            if keyboard.is_pressed("q"):
+                print("Exiting")
+                exit()
+
+            else:
+                photo_fish_box(fish_box,a)
+                d = percent_color("Fish_box0.png",brown_color,silent=False)
+                if d > 0:
+                    print("Fish detected!!")
+                    real_rod()
+                    break
+                else:
+                    pass
+
+        # PressKey(0x2E)
+        # sleep(1)
+        # ReleaseKey(0x2E)
+
+    
+            
+            
             
    
    
@@ -253,8 +324,10 @@ def start_fishing():
 
 
 
-
+# Mode ask and stuff
 while True:
+    print("\n \n \n \n \n \nStardew Vally auto script V%a" % version)
+
     auto = False
     options = input("""
     1. Fishing
@@ -275,11 +348,18 @@ while True:
 
 
 
-if auto == "Fishing":
-    start_fishing()
+# Kindof the main loop
+try:
+    if auto == "Fishing":
+        start_fishing()
 
-elif auto == "Debug":
-   start_debug()
+    elif auto == "Debug":
+        start_debug()
+
+except KeyboardInterrupt:
+    print("\n Goody Bye")
+    exit()
+
 
 
 
