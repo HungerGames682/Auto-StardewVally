@@ -1,4 +1,6 @@
-This will mainly do fishing in the game stardew vally,
+Use this script at your own risk
+
+This will mainly do fishing in the game stardew vally
 Will do some more stuff in later versions
 It works by taking screenshots of your screen and then determining if you have a fish or not
 
