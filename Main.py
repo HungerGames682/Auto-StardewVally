@@ -269,10 +269,11 @@ def start_fishing():
         sleep(1)
         pyautogui.moveTo(500,500)
         a = 0
+        things_caught = 0
 
     
 
-
+        # Main fishing loop
         while True:
             if keyboard.is_pressed("q"):
                 print("Exiting")
@@ -280,37 +281,18 @@ def start_fishing():
 
             else:
                 photo_fish_box(fish_box,a)
-                d = percent_color("Fish_box0.png",brown_color,silent=False)
+                d = percent_color("Fish_box0.png",brown_color,silent=True)
                 if d > 0:
-                    print("Fish detected!!")
+                    print("Fish detected!")
                     real_rod()
-                    break
-                else:
-                    pass
-
-        sleep(3)
-        print("2")
-        keyboard.press_and_release("c")
-        while True:
+                    things_caught +=1
             
-            if keyboard.is_pressed("q"):
-                print("Exiting")
-                exit()
-
-            else:
-                photo_fish_box(fish_box,a)
-                d = percent_color("Fish_box0.png",brown_color,silent=False)
-                if d > 0:
-                    print("Fish detected!!")
-                    real_rod()
-                    break
-                else:
-                    pass
-
-        # PressKey(0x2E)
-        # sleep(1)
-        # ReleaseKey(0x2E)
-
+                    # Recasts
+                    sleep(3)
+                    print("\n %i things caught" % things_caught)
+                    cast_rod()
+                    sleep(1)
+                    
     
             
             
