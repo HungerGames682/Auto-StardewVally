@@ -37,6 +37,11 @@ version = 1.0
 # Here are all of the color hues that I need
 brown_color = [174,112,28]
 energy_bar_red_color = [205,0,0]
+fishing_hit_yellow_color = [231,189,19]
+fishing_game_bar_green_color = [130,229,0]
+fishing_game_bar_not_hook_green_color = [116,202,58]
+fishing_game_iron_pole_color = [81,81,81]
+fishing_game_wood_color = [232,174,78]
 
 
 
@@ -52,7 +57,7 @@ mouse = MouseController()
 
 # Gets the percent of color based on an image
 # I stole this
-def percent_color(image:str,color_hue:list,silent:bool,diffs:int):
+def percent_color(image:str,color_hue:list,silent:bool,diffs:int,show_image:bool):
     # Read image
     imagePath = "./Images/"
     img = cv2.imread(imagePath+image)
@@ -132,8 +137,9 @@ def percent_color(image:str,color_hue:list,silent:bool,diffs:int):
 
         # numpy's hstack is used to stack two images horizontally,
         # so you see the various images generated in one figure:
-        # cv2.imshow("images", np.hstack([img, output]))
-        # cv2.waitKey(0)
+        if show_image == True:
+            cv2.imshow("images", np.hstack([img, output]))
+            cv2.waitKey(0)
         return percent
 
 
@@ -193,16 +199,20 @@ def ReleaseKey(hexKeyCode):
 
 
 
-
 # Everything else below this is my origanal code
 # This just allows you to see the position of your mouse
 def start_debug():
     print("This is just for me to quickly get the mouse posisions")
     sleep(3)
+    n =0
     while True:
-        print(str(pyautogui.position()) + "\n")
-        sleep(.3)
-
+        if keyboard.is_pressed("k"):
+            image = ImageGrab.grab()
+            image.save("Images/Fish_fishing" + str(n) + ".png")
+            n = n+1
+        else:
+            print(str(pyautogui.position()) + "\n")
+            sleep(.3)
 
 
 
@@ -252,8 +262,93 @@ def start_fishing():
         # Checks the energy levels, then takes the pixle percentage and passes it through
         def check_energy_level():
             get_energy_bar()
-            level = percent_color("Energy_Bar.png",energy_bar_red_color,silent=True,diffs=0)
+            level = percent_color("Energy_Bar.png",energy_bar_red_color,silent=True,diffs=0,show_image=False)
             return level
+        
+        # Sees if the thing caught is a fish
+        def is_fish():
+                    times = 0   
+
+                    while True:
+                        if keyboard.is_pressed("q"):
+                            exit()
+                        image = ImageGrab.grab()
+                        image.save("Images/Fish_fishing0.png")
+                        per = percent_color("Fish_fishing0.png",fishing_hit_yellow_color,silent=True,diffs=5,show_image=False)
+                        print(per)
+                        if per > .0:
+                            print("\nIs fish")
+                            fish = True
+
+                            
+
+                        else:
+                            print("\nNot a fish")  
+                            fish = False 
+                
+                        
+                        if fish == True:
+                            # Needs to put the fishing minigame here
+
+                            return True
+                            
+                        else:
+                            print("nope")
+                            if times >= 20:
+                                print("Overide")
+                                return False
+                        times +=1
+                        print(times)
+
+        # Does the acutall minigame
+        def fish_game():
+            def up():
+                PressKey(0x2E)
+                sleep(.3)
+                ReleaseKey(0x2E)
+
+            def down():
+                sleep(.3)
+
+            def stay():
+                PressKey(0x2E)
+                sleep(.2)
+                ReleaseKey(0x2E)
+            sleep(1.2)
+            while True:
+                image = ImageGrab.grab()
+                image.save("Images/Fish_game.png")
+                per = percent_color("Fish_game.png",fishing_game_bar_green_color,silent=True,diffs=5,show_image=False)
+                per1 = percent_color("Fish_game.png",fishing_game_bar_not_hook_green_color,silent=True,diffs=5,show_image=False)
+                iron_rod = percent_color("Fish_game.png",fishing_game_iron_pole_color,silent=True,diffs=5,show_image=False)
+                wood = percent_color("Fish_game.png",fishing_game_wood_color,silent=True,diffs=5,show_image=False)
+                print(per)
+                print(per1)
+                print(iron_rod)
+                print(wood)
+                if per == .18:
+                    print("\nStaying")
+                    stay()
+                elif per != 0:
+                    ud = random.randint(1,2)
+                    if ud == 1:
+                        print("\nGoing up")
+                        up()
+                    else:
+                        print("\nGoing down")
+                        down()
+                elif per1 == 0 and per == 0 and wood == 0 or iron_rod == 0:
+                    print("\nMinigame done")
+                    break
+                        
+
+
+
+        
+
+        
+
+
         sleep(1)
         energy = check_energy_level()
         
@@ -261,6 +356,7 @@ def start_fishing():
         if energy > 0:
             print("\n Not enough energy to fish")
             exit()
+
 
         fish_box = get_box_position()
         # photo_fish_box(fish_box)
@@ -293,7 +389,7 @@ def start_fishing():
                 photo_fish_box(fish_box,a)
 
                 # Gets pixle percent
-                d = percent_color("Fish_box0.png",brown_color,silent=True,diffs=4)
+                d = percent_color("Fish_box0.png",brown_color,silent=False,diffs=4,show_image=False)
 
                 # Sees the pixle percent and knows if you caught a fish
                 if d > 0:
@@ -301,8 +397,17 @@ def start_fishing():
                     real_rod()
                     things_caught +=1
 
+                    fi = is_fish()
 
+                    if fi == True:
+                        print("Starting game")
+                        fish_game()
+                    else:
+                        print("Garbage caught")
+
+                    
                     sleep(.5)
+
 
                     # Stops you from fishing if your energy is too low
                     energy = check_energy_level()
