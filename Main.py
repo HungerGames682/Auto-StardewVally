@@ -442,7 +442,7 @@ while True:
     auto = False
     options = input("""
     1. Fishing
-    2. WIP
+    2. Cedar Forest Hard wood Collecting (WIP)
     3. Debug Probing
     Choses a task to automate: """)
 
@@ -452,6 +452,8 @@ while True:
 
     elif options == "2":
         print("WIP")
+        print("When finished, this will make you auto mine the 6 tree stumps in the seedar forest for some hardwood.")
+        sleep(1)
         
 
     elif options == "3":
