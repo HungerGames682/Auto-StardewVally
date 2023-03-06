@@ -442,8 +442,8 @@ while True:
     auto = False
     options = input("""
     1. Fishing
-    2. Debug Probing
-    3. ?
+    2. WIP
+    3. Debug Probing
     Choses a task to automate: """)
 
     if options == "1" :
@@ -451,6 +451,10 @@ while True:
         break
 
     elif options == "2":
+        print("WIP")
+        
+
+    elif options == "3":
         auto = "Debug"
         break
 
